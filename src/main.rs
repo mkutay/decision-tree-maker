@@ -4,6 +4,7 @@ enum DecisionTree {
     Leaf(String),
     Branch {
         column: usize,
+        default_class: String,
         branches: HashMap<String, Box<DecisionTree>>,
     },
 }
@@ -125,19 +126,24 @@ fn id3(
 
     DecisionTree::Branch {
         column: best_feature,
+        default_class: majority_class,
         branches,
     }
 }
 
-fn print_tree(tree: &DecisionTree, features: &[String], indent: usize, class: &String) {
+fn print_tree(tree: &DecisionTree, features: &[String], indent: usize, class: &str) {
     let prefix = "  ".repeat(indent);
     match tree {
         DecisionTree::Leaf(label) => {
             println!("{prefix}-> {class}: {label}");
         }
-        DecisionTree::Branch { column, branches } => {
+        DecisionTree::Branch {
+            column,
+            default_class,
+            branches,
+        } => {
             let feature_name = &features[*column];
-            println!("{prefix}[{feature_name}]");
+            println!("{prefix}[{feature_name}] (default fallback: {default_class})");
             for (value, subtree) in branches {
                 println!("{prefix}  = {value}:");
                 print_tree(subtree, features, indent + 2, class);
